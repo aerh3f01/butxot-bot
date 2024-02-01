@@ -19,7 +19,7 @@ module.exports = {
             let characterMessage = '';
 
             for (const row of res.rows) {
-                characterMessage += `\n${row.name} (${row.display_name}) - ${row.webhook_url}`;
+                characterMessage += `\n${row.name} (${row.display_name}) - Creator: ${row.creator_username}`;
             }
 
             

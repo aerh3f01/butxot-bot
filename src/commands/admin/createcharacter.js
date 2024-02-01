@@ -28,7 +28,7 @@ module.exports = {
         const displayName = interaction.options.getString('display_name');
         const avatarUrl = interaction.options.getString('avatar_url');
         const channel = interaction.options.getChannel('channel');
-
+        const creatorUser = interaction.user.tag;
         try {
             // Create a webhook
             const webhook = await channel.createWebhook({
@@ -37,11 +37,11 @@ module.exports = {
             });
 
             // Store character and webhook in the database
-            const query = 'INSERT INTO characters (name, display_name, avatar_url, webhook) VALUES ($1, $2, $3, $4) RETURNING *';
-            const values = [name, displayName, avatarUrl, webhook.url];
+            const query = 'INSERT INTO characters (name, display_name, avatar_url, webhook, creator_username) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+            const values = [name, displayName, avatarUrl, webhook.url, creatorUser];
             const res = await pool.query(query, values);
 
-            await interaction.reply(`Character created: ${res.rows[0].display_name}`);
+            await interaction.reply(`Character created by ${creatorUser}: ${res.rows[0].display_name}`);
         } catch (err) {
             console.error(err);
             await interaction.reply('Failed to create character and webhook.');
