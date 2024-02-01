@@ -4,12 +4,16 @@ module.exports = {
 	category: 'utility',
 	data: new SlashCommandBuilder()
 		.setName('reload')
-		.setDescription('Reloads a command.')
+		.setDescription('Admin Debug only - Reloads a command.')
 		.addStringOption(option =>
 			option.setName('command')
 				.setDescription('The command to reload.')
 				.setRequired(true)),
 	async execute(interaction) {
+		// Check if the user is an administrator
+		if (!interaction.member.permissions.has('ADMINISTRATOR')) {
+			return interaction.reply('You must be an administrator to use this command.');
+		}
 		const commandName = interaction.options.getString('command', true).toLowerCase();
 		const command = interaction.client.commands.get(commandName);
 

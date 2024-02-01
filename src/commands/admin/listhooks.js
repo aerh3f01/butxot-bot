@@ -5,8 +5,13 @@ module.exports = {
     category: 'admin',
     data: new SlashCommandBuilder()
         .setName('listhooks')
-        .setDescription('Lists all webhooks stored in the database'),
+        .setDescription('Admin only - Lists all webhooks stored in the database'),
     async execute(interaction) {
+        // Check if the user is an administrator
+        if (!interaction.member.permissions.has('ADMINISTRATOR')) {
+            return interaction.reply('You must be an administrator to use this command.');
+        }
+
         // Fetch webhooks from the database
         try {
             const res = await pool.query('SELECT * FROM characters');

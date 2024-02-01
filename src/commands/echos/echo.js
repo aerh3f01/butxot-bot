@@ -4,12 +4,17 @@ const { pool } = require('../../util/db.js'); // Import your database pool
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('echo')
-        .setDescription('Echoes a message using a selected character')
+        .setDescription('Character Creator only - Echoes a message using a selected character')
         .addStringOption(option => 
             option.setName('message')
                 .setDescription('The message to echo')
                 .setRequired(true)),
     async execute(interaction) {
+        // Check if the user is a character creator or administrator
+        if (!interaction.member.roles.cache.some(role => role.name === 'Character Creator') && !interaction.member.permissions.has('ADMINISTRATOR')) {
+            return interaction.reply('You must be a character creator or administrator to use this command.');
+        }
+        
         const messageContent = interaction.options.getString('message');
 
         try {

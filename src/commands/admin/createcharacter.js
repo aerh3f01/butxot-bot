@@ -6,7 +6,7 @@ module.exports = {
     category: 'admin',
     data: new SlashCommandBuilder()
         .setName('createcharacter')
-        .setDescription('Creates a new character with an associated webhook')
+        .setDescription('Admin only - Creates a new character with an associated webhook')
         .addStringOption(option => 
             option.setName('name')
                 .setDescription('Name of the character')
@@ -24,6 +24,10 @@ module.exports = {
                 .setDescription('Channel to create the webhook in')
                 .setRequired(true)),
     async execute(interaction) {
+        // Check if the user is an administrator
+        if (!interaction.member.permissions.has('ADMINISTRATOR')) {
+            return interaction.reply('You must be an administrator to use this command.');
+        }
         const name = interaction.options.getString('name');
         const displayName = interaction.options.getString('display_name');
         const avatarUrl = interaction.options.getString('avatar_url');
