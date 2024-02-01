@@ -2,13 +2,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const dotenv = require('dotenv');
-const { Pool } = require('pg');
 
 // Load environment variables
 dotenv.config();
 const token = process.env.BOT_TOKEN;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+client.echoMessages = new Map();
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');

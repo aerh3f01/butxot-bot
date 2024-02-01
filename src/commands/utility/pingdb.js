@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Pool } = require('pg');
+const pool = require('../../util/db');
+const { chalk, logs, errlogs } = require('../../util/ez_log');
 
 module.exports = {
     category: 'utility',
@@ -8,21 +9,15 @@ module.exports = {
         .setDescription('Tests the connection to the database'),
     async execute(interaction) {
         // PostgreSQL pool connection
-        const pool = new Pool({
-            user: process.env.DB_USER,
-            host: process.env.DB_HOST,
-            database: process.env.DB_DATABASE,
-            password: process.env.DB_PASSWORD,
-            port: process.env.DB_PORT,
-        });
-
         try {
             await pool.connect();
             await interaction.reply('Successfully connected to the database!');
+            await logs(chalk.green('Successfully connected to the database at:'), new Date().toISOString().slice(11, 19));
             pool.end();
         } catch (error) {
             console.error(error);
             await interaction.reply('Failed to connect to the database.');
+            await errlogs(chalk.red('Failed to connect to the database at:'), new Date().toISOString().slice(11, 19));
         }
     }, 
 };
