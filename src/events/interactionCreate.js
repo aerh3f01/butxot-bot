@@ -1,7 +1,8 @@
 const { Events } = require('discord.js');
 const { pool } = require('../util/db'); // Import your database pool
 const { WebhookClient } = require('discord.js');
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require('@discordjs/builders');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require('@discordjs/builders');
+const { chalk, logs, errlogs } = require('../util/ez_log');
 
 module.exports = {
     name: Events.InteractionCreate,
@@ -52,7 +53,8 @@ module.exports = {
 
                     await interaction.update({ content: 'Message sent!', components: [] });
                 } catch (err) {
-                    console.error(err);
+                    errlogs(chalk.red('Failed to send the message at:'), new Date().toISOString().slice(11, 19));
+                    errlogs(chalk.red(err));
                     await interaction.update({ content: 'Failed to send the message.', components: [] });
                 }
             }
@@ -119,12 +121,14 @@ module.exports = {
                         // Acknowledge the interaction
                         await interaction.reply({ content: 'The vote has been ended and results are updated.', ephemeral: true });
                     } catch (err) {
-                        console.error(err);
-                        await interaction.reply({ content: 'An error occurred while processing your vote.', ephemeral: true });
+                        errlogs(chalk.red('Failed to end the vote at:'), new Date().toISOString().slice(11, 19));
+                        errlogs(chalk.red(err));
+                        await interaction.reply({ content: 'An error occurred while ending the vote.', ephemeral: true });
                     }
                 }
             } catch (err) {
-                console.error(err);
+                errlogs(chalk.red('Failed to process the vote at:'), new Date().toISOString().slice(11, 19));
+                errlogs(chalk.red(err));
                 await interaction.reply({ content: 'An error occurred while processing your vote.', ephemeral: true });
             }
         };

@@ -7,8 +7,14 @@ const dotenv = require('dotenv');
 dotenv.config();
 const token = process.env.BOT_TOKEN;
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-client.echoMessages = new Map();
+const client = new Client({ intents: [
+	GatewayIntentBits.Guilds,
+	GatewayIntentBits.GuildMessages,
+	GatewayIntentBits.MessageContent,
+	GatewayIntentBits.GuildMessageReactions
+] });
+client.echoMessages = new Map(); 
+
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
@@ -40,5 +46,7 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
+
+
 
 client.login(token);

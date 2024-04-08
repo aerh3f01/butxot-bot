@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { WebhookClient } = require('discord.js');
+const { chalk, logs, errlogs } = require('../../util/ez_log');
 const { pool } = require('../../util/db'); // Assuming you have a db.js file for handling the database connection
+const isAdmin = require('../../events/admins');
 
 module.exports = {
     category: 'admin',
@@ -25,8 +26,12 @@ module.exports = {
                 .setRequired(true)),
     async execute(interaction) {
         // Check if the user is an administrator
-        if (!interaction.member.permissions.has('ADMINISTRATOR')) {
-            return interaction.reply('You must be an administrator to use this command.');
+        const member = interaction.member;
+        const memberId = member.id;
+        const memberPermissions = member.permissions;
+        const client = interaction.client;
+        if (!await isAdmin(member, memberId, memberPermissions)) {
+            return interaction.reply({ content: 'Sorry, you do not have the required permissions to use this command.', ephemeral: true });
         }
         const name = interaction.options.getString('name');
         const displayName = interaction.options.getString('display_name');
@@ -44,10 +49,11 @@ module.exports = {
             const query = 'INSERT INTO characters (name, display_name, avatar_url, webhook, creator_username) VALUES ($1, $2, $3, $4, $5) RETURNING *';
             const values = [name, displayName, avatarUrl, webhook.url, creatorUser];
             const res = await pool.query(query, values);
-
+            logs(chalk.blue(`Character created by user ${creatorUser} called ${name} - ${displayName}, at:`), new Date().toISOString().slice(11, 19));
             await interaction.reply(`Character created by ${creatorUser}: ${res.rows[0].display_name}`);
         } catch (err) {
-            console.error(err);
+            errlogs(chalk.red('Failed to create character and webhook at:'), new Date().toISOString().slice(11, 19));
+            errlogs(err);
             await interaction.reply('Failed to create character and webhook.');
         }
     },

@@ -17,6 +17,7 @@ module.exports = {
             activities: [{name: `poor coders cry`, type: ActivityType.Watching}],
             status: 'dnd',
         });
+        module.exports = { client };
         
     },
 };

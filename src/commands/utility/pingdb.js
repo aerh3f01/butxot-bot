@@ -17,7 +17,6 @@ module.exports = {
             await pool.query('SELECT NOW()');
             await interaction.reply('Successfully connected to the database!');
             await logs(chalk.green('Successfully connected to the database at:'), new Date().toISOString().slice(11, 19));
-            pool.end();
         } catch (error) {
             console.error(error);
             await interaction.reply('Failed to connect to the database.');
