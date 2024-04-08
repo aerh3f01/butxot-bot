@@ -60,8 +60,10 @@ module.exports = {
             }
         }
         if (interaction.isButton()) {
-            const [action, voteId, optionId] = interaction.customId.split('_');
+            // Handle the buttons between voting and report commands
+            const [action, voteId, optionId = '0'] = interaction.customId.split('_');
 
+            
             try {
                 if (action === 'vote') {
                     // Implement vote logic
@@ -125,11 +127,44 @@ module.exports = {
                         errlogs(chalk.red(err));
                         await interaction.reply({ content: 'An error occurred while ending the vote.', ephemeral: true });
                     }
+                } else if (action === 'priority' || action === 'medium' || action === 'general') {
+                    // Implement report priority logic
+                    const priorityLevel = action === 'priority' ? 'Priority' : action === 'medium' ? 'Medium' : 'General';
+
+                    // Update the report with the priority level
+                    const updateReportQuery = 'UPDATE reports SET report_priority = $1 WHERE report_id = $2';
+                    await pool.query(updateReportQuery, [priorityLevel, voteId]);
+
+                    // Acknowledge the interaction
+                    await interaction.reply({ content: `The report has been marked as ${priorityLevel}.`, ephemeral: true });
+                    
+                    // Fetch the original message
+                    const originalMessage = await interaction.message.fetch();
+
+                    // Edit fields to include the priority level
+                    const reportEmbed = originalMessage.embeds[0];
+                    reportEmbed.fields[6].value = priorityLevel;
+                    await originalMessage.edit({ embeds: [reportEmbed] });
+
+
+                    // Disable all buttons
+                    const updatedComponents = originalMessage.components.map(row =>
+                        new ActionRowBuilder().addComponents(
+                            row.components.map(component =>
+                                new ButtonBuilder(component.toJSON()).setDisabled(true)
+                            )
+                        )
+                    );
+
+                    // Update the original message with the disabled buttons
+                    await originalMessage.edit({ components: updatedComponents });
+
+
                 }
             } catch (err) {
-                errlogs(chalk.red('Failed to process the vote at:'), new Date().toISOString().slice(11, 19));
+                errlogs(chalk.red('Failed to process the interaction at:'), new Date().toISOString().slice(11, 19));
                 errlogs(chalk.red(err));
-                await interaction.reply({ content: 'An error occurred while processing your vote.', ephemeral: true });
+                await interaction.reply({ content: 'An error occurred while processing your interaction.', ephemeral: true });
             }
         };
     }

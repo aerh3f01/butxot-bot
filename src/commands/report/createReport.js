@@ -32,11 +32,7 @@ module.exports = {
         const guild = interaction.guild;
         const channelID = incomingReports;
         try {
-            // Create an embed for the report filter
-            const reportEmbed = new EmbedBuilder()
-                .setTitle('New Report')
-                .setDescription(`Report Type: ${type}\nReported by: ${user}\nContent: ${content}`)
-            // Insert embed to the incoming reports channel
+            // Pre-Fetch the channel
             const channel = await guild.channels.fetch(channelID);
             
             // Insert the report into the database
@@ -44,6 +40,21 @@ module.exports = {
             const values = [type, userId, content];
             const reportRes = await pool.query(query, values);
             const reportId = reportRes.rows[0].report_id;
+
+            // Create an embed for the report filter
+            const reportEmbed = new EmbedBuilder()
+                .setTitle(`Report #${reportId}`)
+                .setDescription(`A new report has been created for ${type}`)
+                .setFields([
+                    { name: 'Report ID', value: reportId.toString(), inline: true }, // Convert reportId to a string
+                    { name: 'User', value: user.toString(), inline: true }, // Convert userId to a string
+                    { name: 'Report Type', value: type, inline: true }, // Assuming type is already a string
+                    { name: 'Reported by', value: user.toString(), inline: true }, // Convert user to a string
+                    // Ensure content is a string and not too long; Discord limits field values to 1024 characters
+                    { name: 'Content', value: content.substring(0, 1024), inline: true },
+                    { name: 'Status', value: 'Pending', inline: true },
+                    { name: 'Priority', value: 'None', inline: true }
+                ]);
 
             // Create the buttons
             const priorityButton = new ButtonBuilder()
@@ -67,7 +78,11 @@ module.exports = {
 
             // Send the report to the incoming reports channel
             if (channel) {
-                await channel.send({ embeds: [reportEmbed], components: [row] });
+                const message = await channel.send({ embeds: [reportEmbed], components: [row] });
+
+                // Update the report with the message ID
+                const updateQuery = 'UPDATE reports SET message_id = $1 WHERE report_id = $2';
+                await pool.query(updateQuery, [message.id, reportId]);
             } else {
                 errlogs(chalk.red('Failed to send report to incoming reports channel at:'), new Date().toISOString().slice(11, 19));
             }
