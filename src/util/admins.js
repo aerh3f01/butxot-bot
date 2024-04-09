@@ -1,6 +1,6 @@
 const { Permissions } = require('discord.js');
 const { logs, chalk } = require('./ez_log');
-const { dotenv } = require('./dotenv');
+const dotenv  = require('dotenv');
 
 dotenv.config();
 
