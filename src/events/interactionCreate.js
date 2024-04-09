@@ -176,7 +176,7 @@ module.exports = {
                         }
                        
                         // Send the report embed to the new channel
-                        /*const reportStatusEmbed = new EmbedBuilder()
+                        const reportStatusEmbed = new EmbedBuilder()
                             .setTitle(`Report #${interactId}`)
                             .setDescription(`A new report has been created for ${priorityLevel}`)
                             .setFields([
@@ -186,14 +186,14 @@ module.exports = {
                                 { name: 'Status', value: 'In Progress', inline: true },
                                 { name: 'Priority', value: priorityLevel.toString(), inline: true }
                             ])
-                            .setTimestamp()
-                            .setFooter('Report created at:');
+                            .setFooter({ text: 'Report created at:' + new Date().toISOString().slice(11, 19)});
+
                             
 
                         // Send the embed to the new channel
 
                         await report_channel.send({ embeds: [reportStatusEmbed] });
-                        */
+                        
                         // Send a message to start the conversation
                         await report_channel.send(`Hello, ${reportCreator}! A moderator will be with you shortly to discuss your report.`);
 
