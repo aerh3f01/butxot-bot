@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, SelectMenuBuilder } = require('@discordjs/builders');
 const { pool } = require('../../util/db.js'); // Import your database pool
+const { isAdmin } = require('../../util/admins.js'); // Import your isAdmin function
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -10,10 +11,14 @@ module.exports = {
                 .setDescription('The message to echo')
                 .setRequired(true)),
     async execute(interaction) {
-        // Check if the user is a character creator or administrator
-        if (!interaction.member.roles.cache.some(role => role.name === 'Character Creator') && !interaction.member.permissions.has('ADMINISTRATOR')) {
-            return interaction.reply('You must be a character creator or administrator to use this command.');
-        }
+       // Check if the user is an administrator
+       const member = interaction.member;
+       const memberId = member.id;
+       const memberPermissions = member.permissions;
+       
+       if (!await isAdmin(member, memberId, memberPermissions)) {
+           return interaction.reply({ content: 'Sorry, you do not have the required permissions to use this command.', ephemeral: true });
+       }
         
         const messageContent = interaction.options.getString('message');
 

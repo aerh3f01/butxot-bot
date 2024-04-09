@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require('@discordjs/builders');
 const { ButtonStyle } = require('discord.js');
 const { pool } = require('../../util/db');
+const { isAdmin } = require('../../util/admins');
 
 module.exports = {
     category: 'voting',
@@ -20,6 +21,16 @@ module.exports = {
                 .setDescription('Voting options separated by commas (max 10)')
                 .setRequired(true)),
     async execute(interaction) {
+        // Check if the user is an administrator
+        const member = interaction.member;
+        const memberId = member.id;
+        const memberPermissions = member.permissions;
+        
+        if (!await isAdmin(member, memberId, memberPermissions)) {
+            return interaction.reply({ content: 'Sorry, you do not have the required permissions to use this command.', ephemeral: true });
+        }
+
+
         const title = interaction.options.getString('title');
         const content = interaction.options.getString('content');
         let options = interaction.options.getString('options').split(',');

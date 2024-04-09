@@ -12,7 +12,7 @@ module.exports = {
         const member = interaction.member;
         const memberId = member.id;
         const memberPermissions = member.permissions;
-        const client = interaction.client;
+        
         if (!await isAdmin(member, memberId, memberPermissions)) {
             return interaction.reply({ content: 'Sorry, you do not have the required permissions to use this command.', ephemeral: true });
         }
