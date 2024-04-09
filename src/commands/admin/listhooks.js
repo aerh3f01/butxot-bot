@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { pool } = require('../../util/db'); // Import your database pool
+const isAdmin = require('../../util/admins');
 
 module.exports = {
     category: 'admin',
@@ -8,8 +9,12 @@ module.exports = {
         .setDescription('Admin only - Lists all webhooks stored in the database'),
     async execute(interaction) {
         // Check if the user is an administrator
-        if (!interaction.member.permissions.has('ADMINISTRATOR')) {
-            return interaction.reply('You must be an administrator to use this command.');
+        const member = interaction.member;
+        const memberId = member.id;
+        const memberPermissions = member.permissions;
+        const client = interaction.client;
+        if (!await isAdmin(member, memberId, memberPermissions)) {
+            return interaction.reply({ content: 'Sorry, you do not have the required permissions to use this command.', ephemeral: true });
         }
 
         // Fetch webhooks from the database

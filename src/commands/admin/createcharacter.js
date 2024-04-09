@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { chalk, logs, errlogs } = require('../../util/ez_log');
 const { pool } = require('../../util/db'); // Assuming you have a db.js file for handling the database connection
-const isAdmin = require('../../events/admins');
+const isAdmin = require('../../util/admins');
 
 module.exports = {
     category: 'admin',
