@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { pool } = require('../../util/db');
 const { chalk, logs, errlogs } = require('../../util/ez_log');
-const { isAdmin } = require('../../util/admins');
+const  isAdmin  = require('../../util/admins');
 
 module.exports = {
     category: 'utility',
