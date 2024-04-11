@@ -1,14 +1,26 @@
-const dotenv = require('dotenv');
-dotenv.config();
+const fs = require('fs');
+const path = require('path');
 
-const incomingReports = process.env.INCOMING_REPORTS_ID;
-const priorityCategory = process.env.PRIORITY_CATEGORY;
-const mediumCategory = process.env.MEDIUM_CATEGORY;
-const generalCategory = process.env.GENERAL_CATEGORY;
+const configPath = path.join(__dirname, '../config.json');
+
+// Enhanced error handling for loading config
+let config;
+try {
+  const configRaw = fs.readFileSync(configPath, 'utf8');
+  config = JSON.parse(configRaw);
+} catch (error) {
+  console.error("Failed to load config:", error);
+  config = {}; // Provide a fallback object
+}
+
+// Extracting category IDs and incoming reports ID from the config
+const { incomingReportsChannel, modCategory, priorityCategory, mediumCategory, generalCategory } = config;
 
 module.exports = {
-    incomingReports,
+    incomingReportsChannel,
+    modCategory,
     priorityCategory,
     mediumCategory,
     generalCategory
 };
+

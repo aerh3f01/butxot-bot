@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nodemon index.js",
     "start": "node .",
-    "dev": "nodemon ."
+    "dev": "nodemon --ignore config.json"
   },
   "author": "",
   "license": "ISC",

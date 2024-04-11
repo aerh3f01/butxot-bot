@@ -191,7 +191,7 @@ module.exports = {
                             
 
                         // Send the embed to the new channel
-
+ 
                         await report_channel.send({ embeds: [reportStatusEmbed] });
                         
                         // Send a message to start the conversation

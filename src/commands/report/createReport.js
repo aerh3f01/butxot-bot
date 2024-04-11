@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder } = r
 const { ButtonStyle } = require('discord.js');
 const { pool } = require('../../util/db');
 const { chalk, logs, errlogs } = require('../../util/ez_log');
-const { incomingReports } = require('../../util/reportCat')
+const { incomingReportsChannel } = require('../../util/reportCat')
 
 module.exports = {
     category: 'report',
@@ -30,7 +30,8 @@ module.exports = {
         const user = interaction.user.tag;
         const userId = interaction.user.id;
         const guild = interaction.guild;
-        const channelID = incomingReports;
+        const channelID = incomingReportsChannel;
+        console.log(channelID);
         try {
             // Pre-Fetch the channel
             const channel = await guild.channels.fetch(channelID);
