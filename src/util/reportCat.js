@@ -14,13 +14,14 @@ try {
 }
 
 // Extracting category IDs and incoming reports ID from the config
-const { incomingReportsChannel, modCategory, priorityCategory, mediumCategory, generalCategory } = config;
+const { incomingReportsChannel, modCategory, priorityCategory, mediumCategory, generalCategory, closedCategory } = config;
 
 module.exports = {
     incomingReportsChannel,
     modCategory,
     priorityCategory,
     mediumCategory,
-    generalCategory
+    generalCategory,
+    closedCategory
 };
 

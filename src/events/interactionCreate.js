@@ -1,14 +1,19 @@
 const { Events, ChannelType, PermissionsBitField } = require('discord.js');
-const { pool } = require('../util/db'); // Import your database pool
+const { pool } = require('../util/db'); 
 const { WebhookClient } = require('discord.js');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require('@discordjs/builders');
 const { chalk, logs, errlogs } = require('../util/ez_log');
 const { priorityCategory, mediumCategory, generalCategory } = require('../util/reportCat');
+const customEmitter = require('../util/customEmitter');
 
 
 module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
+        // Handle custom command interactions for closeReport
+        if (interaction.isCommand() && interaction.commandName === 'close-report') {
+            await customEmitter.emit('closeReport', interaction);
+        }
         // Handling Chat Input Commands
         if (interaction.isChatInputCommand()) {
             const command = interaction.client.commands.get(interaction.commandName);
@@ -167,7 +172,6 @@ module.exports = {
                         })
                         
                         // Editing permissions to allow moderators to view the channel
-
                         const moderatorRole = interaction.guild.roles.cache.find(role => role.name === 'Moderator');
                         if (moderatorRole) {
                             await report_channel.permissionOverwrites.edit(moderatorRole, {
@@ -191,9 +195,12 @@ module.exports = {
                             
 
                         // Send the embed to the new channel
- 
-                        await report_channel.send({ embeds: [reportStatusEmbed] });
+                        const report_channel_message = await report_channel.send({ embeds: [reportStatusEmbed] });
                         
+                        // Update the database with the message id
+                        const updateMessageQuery = 'UPDATE reports SET reports_channel_message_id = $1 WHERE report_id = $2';
+                        await pool.query(updateMessageQuery, [report_channel_message.id, interactId]);
+
                         // Send a message to start the conversation
                         await report_channel.send(`Hello, ${reportCreator}! A moderator will be with you shortly to discuss your report.`);
 

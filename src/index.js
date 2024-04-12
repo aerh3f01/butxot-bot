@@ -3,6 +3,8 @@ const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const dotenv = require('dotenv');
 
+const customEmitter = require('./util/customEmitter');
+
 // Load environment variables
 dotenv.config();
 const token = process.env.BOT_TOKEN;
@@ -47,6 +49,14 @@ for (const file of eventFiles) {
 	}
 }
 
+// Using custom events logic handling
+const customEventsPath = path.join(__dirname, 'customEvents');
+const customEventFiles = fs.readdirSync(customEventsPath).filter(file => file.endsWith('.js'));
 
+for (const file of customEventFiles) {
+    const eventHandler = require(path.join(customEventsPath, file));
+    // Assuming each custom event handler module exports an object { eventName, execute }
+    customEmitter.on(eventHandler.eventName, (...args) => eventHandler.execute(...args));
+}
 
 client.login(token);

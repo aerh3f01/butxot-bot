@@ -26,23 +26,28 @@ module.exports = {
             return interaction.reply({ content: 'Sorry, you do not have the required permissions to use this command.', ephemeral: true });
         }
 
-        // Check if moderation category already exists
+        // Get the guild and categories
         const guild = interaction.guild;
         const categories = await guild.channels.cache.filter(channel => channel.type === ChannelType.GuildCategory).map(category => category);
+        
+        // Find the categories by name
         let modCategory = categories.find(category => category.name === 'moderation');
-        
         let priorityCategory = categories.find(category => category.name === 'priority reports');
-        
         let mediumCategory = categories.find(category => category.name === 'medium reports');
-        
         let generalCategory = categories.find(category => category.name === 'general reports');
+        let closedCategory = categories.find(category => category.name === 'closed reports');
 
-        let modRoleId = guild.roles.cache.find(role => role.name === 'Moderator');
-        let adminRoleId = guild.roles.cache.find(role => role.name === 'Admin');
+        // Check if incoming reports channel already exists
+        let incomingReportsChannel = guild.channels.cache.find(channel => channel.name === 'incoming-reports');
 
+        // Get the moderator and admin role IDs
+        let modRoleId = guild.roles.cache.find(role => role.name === 'Moderator').id;
+        let adminRoleId = guild.roles.cache.find(role => role.name === 'Admin').id;
+
+        // Create the categories if they don't exist
         if (!modCategory) {
             try {
-                modCategory = await guild.channels.create({ 
+                modCategory = await guild.channels.create({
                     name: 'moderation',
                     type: ChannelType.GuildCategory,
                     permissionOverwrites: [
@@ -64,19 +69,6 @@ module.exports = {
                     ],
                 });
                 logs(chalk.blue('Moderation category created'));
-                // Create the incomming reports channel
-                const incomingReportsChannel = await guild.channels.create({
-                    name: 'incoming-reports',
-                    type: ChannelType.GuildText,
-                    parent: modCategory.id,
-                });
-
-                // Add the channel id to the config file
-                config.incomingReportsChannel = incomingReportsChannel.id;
-                fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-
-
-                logs(chalk.blue('Incoming reports channel created'));
             } catch (err) {
                 errlogs(chalk.red('Failed to create moderation category'), err);
                 return interaction.reply({ content: 'Failed to create moderation category', ephemeral: true });
@@ -173,11 +165,75 @@ module.exports = {
             }
         }
 
+        if (!closedCategory) {
+            try {
+                closedCategory = await guild.channels.create({
+                    name: 'closed reports',
+                    type: ChannelType.GuildCategory,
+                    permissionOverwrites: [
+                        // Deny everyone access to the category
+                        {
+                            id: guild.id,
+                            deny: [PermissionsBitField.Flags.ViewChannel],
+                        },
+                        // Allow moderators to view the category
+                        {
+                            id: modRoleId,
+                            allow: [PermissionsBitField.Flags.ViewChannel],
+                        },
+                        // Allow admins to view the category
+                        {
+                            id: adminRoleId,
+                            allow: [PermissionsBitField.Flags.ViewChannel],
+                        },
+                    ],
+                });
+                logs(chalk.blue('Closed reports category created'));
+            } catch (err) {
+                errlogs(chalk.red('Failed to create closed reports category'), err);
+                return interaction.reply({ content: 'Failed to create closed reports category', ephemeral: true });
+            }
+        }
+
+        // Create the incoming reports channel if it doesn't exist
+
+        if (!incomingReportsChannel) {
+
+            try {
+                incomingReportsChannel = await guild.channels.create('incoming-reports', {
+                    type: ChannelType.GuildText,
+                    permissionOverwrites: [
+                        // Deny everyone access to the channel
+                        {
+                            id: guild.id,
+                            deny: [PermissionsBitField.Flags.ViewChannel],
+                        },
+                        // Allow moderators to view the channel
+                        {
+                            id: modRoleId,
+                            allow: [PermissionsBitField.Flags.ViewChannel],
+                        },
+                        // Allow admins to view the channel
+                        {
+                            id: adminRoleId,
+                            allow: [PermissionsBitField.Flags.ViewChannel],
+                        },
+                    ],
+                });
+                logs(chalk.blue('Incoming reports channel created'));
+            } catch (err) {
+                errlogs(chalk.red('Failed to create incoming reports channel'), err);
+                return interaction.reply({ content: 'Failed to create incoming reports channel', ephemeral: true });
+            }
+        }
+
         // Add the category and channel ids to the config file
+        config.incomingReportsChannel = incomingReportsChannel.id;
         config.modCategory = modCategory.id;
         config.priorityCategory = priorityCategory.id;
         config.mediumCategory = mediumCategory.id;
         config.generalCategory = generalCategory.id;
+        config.closedCategory = closedCategory.id;
         fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
         logs(chalk.blue('Config file updated'));
 

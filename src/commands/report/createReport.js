@@ -31,7 +31,6 @@ module.exports = {
         const userId = interaction.user.id;
         const guild = interaction.guild;
         const channelID = incomingReportsChannel;
-        console.log(channelID);
         try {
             // Pre-Fetch the channel
             const channel = await guild.channels.fetch(channelID);
@@ -82,7 +81,7 @@ module.exports = {
                 const message = await channel.send({ embeds: [reportEmbed], components: [row] });
 
                 // Update the report with the message ID
-                const updateQuery = 'UPDATE reports SET message_id = $1 WHERE report_id = $2';
+                const updateQuery = 'UPDATE reports SET incoming_message_id = $1 WHERE report_id = $2';
                 await pool.query(updateQuery, [message.id, reportId]);
             } else {
                 errlogs(chalk.red('Failed to send report to incoming reports channel at:'), new Date().toISOString().slice(11, 19));
