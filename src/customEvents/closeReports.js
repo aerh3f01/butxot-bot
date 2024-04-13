@@ -59,5 +59,5 @@ customEmitter.on('closeReport', async (interaction, reportNum) => {
             errlogs(chalk.red('Failed to reply to the interaction'), err);
         });
     }
-    logs(chalk.green('Report closed successfully'));
+    logs(chalk.green('Report event closed successfully'));
 });
