@@ -31,6 +31,7 @@ module.exports = {
         const userId = interaction.user.id;
         const guild = interaction.guild;
         const channelID = incomingReportsChannel;
+        
         try {
             // Pre-Fetch the channel
             const channel = await guild.channels.fetch(channelID);

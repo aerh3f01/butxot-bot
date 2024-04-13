@@ -6,12 +6,15 @@ const { closedCategory, incomingReportsChannel } = require('../util/reportCat');
 const { chalk, logs, errlogs } = require('../util/ez_log');
 const { pool } = require('../util/db');
 
-customEmitter.on('closeReport', async (interaction) => {
+customEmitter.on('closeReport', async (interaction, reportNum) => {
     try {
 
-        // Get the report ID from the channel name
+        // Ensure the interaction has a channel context
         const channelName = interaction.channel.name;
         const reportId = channelName.split('-')[1];
+
+
+
 
         // Fetch the message id from the database
         // incoming_message_id and reports_channel_message_id
@@ -29,7 +32,7 @@ customEmitter.on('closeReport', async (interaction) => {
         // Fetch the message from the reports channel
         const reportsChannel = await interaction.guild.channels.cache.find(channel => channel.name === channelName);
         const reportsChannelMessage = await reportsChannel.messages.fetch(reportsChannelMessageId);
-        
+
 
         // Update the message embeds
         const incomingEmbed = incomingMessage.embeds[0];
@@ -45,13 +48,16 @@ customEmitter.on('closeReport', async (interaction) => {
 
         // Move channel to a closed category
         await interaction.channel.setParent(closedCategory, { lockPermissions: false })
-        .catch (err => {
-            errlogs(chalk.red('Failed to move channel to closed category'), err);
-            return interaction.channel.send({ content: 'Failed to move channel to closed category', ephemeral: true });
-        });
-        
+            .catch(err => {
+                errlogs(chalk.red('Failed to move channel to closed category'), err);
+                return interaction.channel.send({ content: 'Failed to move channel to closed category', ephemeral: true });
+            });
+
     } catch (err) {
         errlogs(chalk.red('Failed to close the report'), err);
-        return interaction.channel.send({ content: 'Failed to close the report', ephemeral: true });
+        await interaction.channel.reply({ content: 'Failed to close the report', ephemeral: true }).catch(err => {
+            errlogs(chalk.red('Failed to reply to the interaction'), err);
+        });
     }
+    logs(chalk.green('Report closed successfully'));
 });

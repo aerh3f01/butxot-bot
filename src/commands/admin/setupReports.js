@@ -200,8 +200,10 @@ module.exports = {
         if (!incomingReportsChannel) {
 
             try {
-                incomingReportsChannel = await guild.channels.create('incoming-reports', {
+                incomingReportsChannel = await guild.channels.create({
+                    name: 'incoming-reports',
                     type: ChannelType.GuildText,
+                    parent: modCategory,
                     permissionOverwrites: [
                         // Deny everyone access to the channel
                         {

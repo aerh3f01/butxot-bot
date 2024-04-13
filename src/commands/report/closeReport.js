@@ -53,7 +53,7 @@ module.exports = {
             await pool.query(updateQuery, updateValues);
 
             // Use the custom emitter to emit a closeReport event
-            customEmitter.emit('closeReport', interaction.channel);
+            customEmitter.emit('closeReport', interaction, reportId);
 
             return interaction.reply({ content: `Report #${reportId} has been closed.`, ephemeral: true });
 
@@ -75,11 +75,8 @@ module.exports = {
         const updateValues = ['Closed', reportId];
         await pool.query(updateQuery, updateValues);
 
-        // Get the channel ID from the report
-        const reportChannel = report.channel_id
-
-        // Get Guild ID
-        const guildId = interaction.guild.id;
+        // Use the custom emitter to emit a closeReport event
+        customEmitter.emit('closeReport', interaction, reportId);
 
         interaction.reply({ content: `Report #${reportId} has been closed.`, ephemeral: true });
     }
