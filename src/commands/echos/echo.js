@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, ActionRowBuilder, SelectMenuBuilder } = require('@discordjs/builders');
 const { pool } = require('../../util/db.js'); // Import your database pool
 const { isAdmin } = require('../../util/admins.js'); // Import your isAdmin function
-
 module.exports = {
+    category : 'echos',
     data: new SlashCommandBuilder()
         .setName('echo')
         .setDescription('Character Creator only - Echoes a message using a selected character')

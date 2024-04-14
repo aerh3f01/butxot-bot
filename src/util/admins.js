@@ -1,4 +1,4 @@
-const { Permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 const { logs, chalk } = require('./ez_log');
 const dotenv  = require('dotenv');
 
@@ -17,11 +17,11 @@ async function isAdmin(member, memberId, memberPermissions) {
     }
 
     // Check if the user has Administrator permission
-    else if (memberPermissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+    else if (memberPermissions.has(PermissionsBitField.Flags.Administrator)) {
         logs(chalk.blue('User has the Administrator permission'));
         return true;
     }
-    else if (memberPermissions.has(Permissions.FLAGS.MANAGE_GUILD)) {
+    else if (memberPermissions.has(PermissionsBitField.Flags.ManageGuild)) {
         logs(chalk.blue('User has the Manage Guild permission'));
         return true;
     }

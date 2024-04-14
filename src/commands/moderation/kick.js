@@ -4,7 +4,9 @@ const { PermissionsBitField, EmbedBuilder } = require('discord.js');
 const isAdmin = require('../../util/admins');
 const { logChannel } = require('../../util/reportCat');
 
+
 module.exports = {
+    category: 'moderation',
     data: new SlashCommandBuilder()
         .setName('kick')
         .setDescription('Kick a user from the server.')
@@ -19,23 +21,23 @@ module.exports = {
                 .setRequired(false)
         ),
     async execute(interaction) {
+        // Check if the user is an administrator
+        const member = interaction.member;
+        const memberId = member.id;
+        const memberPermissions = member.permissions;
+
+        if (!await isAdmin(member, memberId, memberPermissions)) {
+            return interaction.reply({ content: 'Sorry, you do not have the required permissions to use this command.', ephemeral: true });
+        }
+
         const user = interaction.options.getUser('user');
         const reason = interaction.options.getString('reason') || 'No reason provided';
 
-        // Check if the user has the required permissions
-        if (!isAdmin(interaction.member) || !interaction.member.permissions.has([PermissionsBitField.Flags.KickMembers]) ) {
-            return interaction.reply({ content: 'You do not have the required permissions to use this command.', ephemeral: true });
-        }
 
-        // Check if the bot has the required permissions
-        if (!interaction.guild.me.permissions.has([PermissionsBitField.Flags.KickMembers])) {
-            return interaction.reply({ content: 'I do not have the required permissions to kick members.', ephemeral: true });
-        }
-
-        const logEmbed = new EmbedBuilder() 
+        const logEmbed = new EmbedBuilder()
             .setTitle('User Kicked')
             .setDescription(`**${user.tag}** has been kicked by **${interaction.user.tag}** for **${reason}**.`)
-            .setColor('#ff0000')
+            .setColor('0xff0000')
             .setTimestamp();
 
         try {
