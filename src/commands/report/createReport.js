@@ -16,7 +16,7 @@ module.exports = {
                 .addChoices(
                     { name: 'Spam', value: 'spam' },
                     { name: 'Harassment', value: 'harassment' },
-                    { name: 'Inappropriate Content', value: 'inappropriate' },
+                    { name: 'Inappropriate Content', value: 'inappropriate-content' },
                     { name: 'Bug', value: 'bug' },
                     { name: 'Other', value: 'other' }
                 ))
