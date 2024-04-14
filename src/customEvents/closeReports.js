@@ -13,8 +13,7 @@ customEmitter.on('closeReport', async (interaction, reportNum) => {
         const channelName = interaction.channel.name;
         const reportId = channelName.split('-')[1];
 
-
-
+        
 
         // Fetch the message id from the database
         // incoming_message_id and reports_channel_message_id
@@ -24,6 +23,8 @@ customEmitter.on('closeReport', async (interaction, reportNum) => {
         const incomingMessageId = res.rows[0].incoming_message_id;
         const reportsChannelMessageId = res.rows[0].reports_channel_message_id;
         const priority = res.rows[0].priority;
+        // report creator
+        const reportCreator = await interaction.guild.members.fetch(userRes.rows[0].user_id);
 
         // Fetch the message from the incoming reports channel
         const incomingChannel = await interaction.guild.channels.fetch(incomingReportsChannel);
@@ -57,7 +58,9 @@ customEmitter.on('closeReport', async (interaction, reportNum) => {
         let logsChannel = await interaction.guild.channels.fetch(logChannel);
         const logEmbed = new EmbedBuilder()
             .setTitle('Report Closed')
-            .setDescription(`Report ${reportId} has been closed by ${interaction.user}`)
+            .setDescription(`Report ${reportId} from ${reportCreator} has been closed.`)
+            .addField('Priority', priority)
+            .addField('Closed by', interaction.user)
             .setColor(0x00AA00)
             .setTimestamp();
         await logsChannel.send({ embeds: [logEmbed] });
