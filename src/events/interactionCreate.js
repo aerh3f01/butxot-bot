@@ -151,6 +151,11 @@ module.exports = {
                     const userRes = await pool.query(userQuery, [interactId]);
                     const reportCreator = await interaction.guild.members.fetch(userRes.rows[0].user_id);
 
+                    // Get the report type from the database
+                    const reportTypeQuery = 'SELECT report_type FROM reports WHERE report_id = $1';
+                    const reportTypeRes = await pool.query(reportTypeQuery, [interactId]);
+                    const reportType = reportTypeRes.rows[0].report_type;
+
                     // For the type of action, change the required category
                     const category = priorityLevel === 'Priority' ? priorityCategory : priorityLevel === 'Medium' ? mediumCategory : generalCategory;
                     try {
@@ -182,10 +187,10 @@ module.exports = {
                         // Send the report embed to the new channel
                         const reportStatusEmbed = new EmbedBuilder()
                             .setTitle(`Report #${interactId}`)
-                            .setDescription(`A new report has been created for ${priorityLevel}`)
+                            .setDescription(`A new report has been created for ${reportType}`)
                             .setFields([
                                 { name: 'Report ID', value: interactId.toString(), inline: true },
-                                { name: 'Report Type', value: priorityLevel.toString(), inline: true },
+                                { name: 'Report Type', value: reportType.toString(), inline: true },
                                 { name: 'Reported By', value: reportCreator.toString(), inline: true },
                                 { name: 'Status', value: 'In Progress', inline: true },
                                 { name: 'Priority', value: priorityLevel.toString(), inline: true }
@@ -218,7 +223,7 @@ module.exports = {
                     const originalMessage = await interaction.message.fetch();
 
                     // Edit fields to include the priority level
-                    const reportEmbed = originalMessage.embeds[0];
+                    const reportEmbed = originalMessage.embeds[0]; 
                     reportEmbed.fields[5].value = 'In Progress';
                     reportEmbed.fields[6].value = priorityLevel;
                     await originalMessage.edit({ embeds: [reportEmbed] });

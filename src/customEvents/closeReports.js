@@ -1,8 +1,8 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 // Utils
 const customEmitter = require('../util/customEmitter');
-const { closedCategory, incomingReportsChannel } = require('../util/reportCat');
+const { closedCategory, incomingReportsChannel, logChannel } = require('../util/reportCat');
 const { chalk, logs, errlogs } = require('../util/ez_log');
 const { pool } = require('../util/db');
 
@@ -53,11 +53,19 @@ customEmitter.on('closeReport', async (interaction, reportNum) => {
                 return interaction.channel.send({ content: 'Failed to move channel to closed category', ephemeral: true });
             });
 
+        // Log the event
+        let logsChannel = await interaction.guild.channels.fetch(logChannel);
+        const logEmbed = new EmbedBuilder()
+            .setTitle('Report Closed')
+            .setDescription(`Report ${reportId} has been closed by ${interaction.user}`)
+            .setColor(0x00AA00)
+            .setTimestamp();
+        await logsChannel.send({ embeds: [logEmbed] });
+
+
+        logs(chalk.green('Report event closed successfully'));
     } catch (err) {
         errlogs(chalk.red('Failed to close the report'), err);
-        await interaction.channel.reply({ content: 'Failed to close the report', ephemeral: true }).catch(err => {
-            errlogs(chalk.red('Failed to reply to the interaction'), err);
-        });
     }
-    logs(chalk.green('Report event closed successfully'));
+
 });

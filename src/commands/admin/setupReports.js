@@ -36,6 +36,8 @@ module.exports = {
         let mediumCategory = categories.find(category => category.name === 'medium reports');
         let generalCategory = categories.find(category => category.name === 'general reports');
         let closedCategory = categories.find(category => category.name === 'closed reports');
+        let logChannel = guild.channels.cache.find(channel => channel.name === 'bot-logs');
+        
 
         // Check if incoming reports channel already exists
         let incomingReportsChannel = guild.channels.cache.find(channel => channel.name === 'incoming-reports');
@@ -43,6 +45,8 @@ module.exports = {
         // Get the moderator and admin role IDs
         let modRoleId = guild.roles.cache.find(role => role.name === 'Moderator').id;
         let adminRoleId = guild.roles.cache.find(role => role.name === 'Admin').id;
+
+        
 
         // Create the categories if they don't exist
         if (!modCategory) {
@@ -196,7 +200,6 @@ module.exports = {
         }
 
         // Create the incoming reports channel if it doesn't exist
-
         if (!incomingReportsChannel) {
 
             try {
@@ -229,6 +232,34 @@ module.exports = {
             }
         }
 
+        // Create the bot logs channel if it doesn't exist
+        if (!logChannel) {
+            try {
+                logChannel = await guild.channels.create({
+                    name: 'bot-logs',
+                    type: ChannelType.GuildText,
+                    parent: modCategory,
+                    permissionOverwrites: [
+                        // Deny everyone access to the channel
+                        {
+                            id: guild.id,
+                            deny: [PermissionsBitField.Flags.ViewChannel],
+                        },
+                        // Allow admins to view the channel
+                        {
+                            id: adminRoleId,
+                            allow: [PermissionsBitField.Flags.ViewChannel],
+                        },
+                    ],
+                });
+                logs(chalk.blue('Bot logs channel created'));
+            }
+            catch (err) {
+                errlogs(chalk.red('Failed to create bot logs channel'), err);
+                return interaction.reply({ content: 'Failed to create bot logs channel', ephemeral: true });
+            }
+        }
+
         // Add the category and channel ids to the config file
         config.incomingReportsChannel = incomingReportsChannel.id;
         config.modCategory = modCategory.id;
@@ -236,6 +267,7 @@ module.exports = {
         config.mediumCategory = mediumCategory.id;
         config.generalCategory = generalCategory.id;
         config.closedCategory = closedCategory.id;
+        config.logChannel = logChannel.id;
         fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
         logs(chalk.blue('Config file updated'));
 
