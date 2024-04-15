@@ -1,8 +1,8 @@
-const { Events, ChannelType, PermissionsBitField } = require('discord.js');
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require('@discordjs/builders');
+const { Events } = require('discord.js');
+const { EmbedBuilder } = require('@discordjs/builders');
 const { chalk, logs, errlogs } = require('../util/ez_log');
 const { logChannel} = require('../util/reportCat');
-const customEmitter = require('../util/customEmitter');
+
 
 module.exports = {
     name: Events.MessageDelete,
