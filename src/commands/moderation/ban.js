@@ -48,7 +48,7 @@ module.exports = {
                 { name: 'Moderator:', value: interaction.user.tag, inline: true },
                 { name: 'Reason', value: reason, inline: true }
             )
-            .setColor('0xff0000')
+            .setColor(0xff0000)
             .setTimestamp();
 
         try {
