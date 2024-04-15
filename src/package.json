@@ -1,14 +1,14 @@
 {
-  "name": "testdiscordbot",
-  "version": "1.0.0",
-  "description": "A testing discord bot profile",
+  "name": "butxot_bot",
+  "version": "2.0.4",
+  "description": "A soft utility discord bot.",
   "main": "index.js",
   "scripts": {
     "test": "nodemon index.js",
     "start": "node .",
     "dev": "nodemon --ignore config.json"
   },
-  "author": "",
+  "author": "aerh3f01",
   "license": "ISC",
   "dependencies": {
     "chalk": "^3.0.0",
