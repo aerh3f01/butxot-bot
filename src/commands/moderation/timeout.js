@@ -4,6 +4,8 @@ const { EmbedBuilder } = require('discord.js');
 const isAdmin = require('../../util/admins');
 const { logChannel } = require('../../util/reportCat');
 
+const { chalk, logs, errlogs } = require('../../util/ez_log');
+
 module.exports = {
     category: 'moderation',
     data: new SlashCommandBuilder()
@@ -79,8 +81,9 @@ module.exports = {
         
         const logEmbed = new EmbedBuilder()
             .setTitle('User Timed Out')
-            .setDescription(`**${user.tag}** has been timed out by **${interaction.user.tag}**.`)
+            .setDescription(`**${user.tag}** has been timed out.`)
             .addFields(
+                { name: 'Moderator:', value: interaction.user.tag, inline: true},
                 { name: 'Duration', value: durationName, inline: true },
                 { name: 'Reason', value: reason, inline: true }
             )
@@ -97,7 +100,8 @@ module.exports = {
             logsChannel.send({ embeds: [logEmbed] })
             return interaction.reply({ content: `Successfully timed out ${user.tag}.`, ephemeral: true });
         } catch (error) {
-            console.error(error);
+            errlogs(chalk.red("Failed to timeout user " + user.tag));
+            errlogs(chalk.red(error));
             return interaction.reply({ content: 'There was an error trying to timeout that user.', ephemeral: true });
         }
     }
