@@ -27,7 +27,8 @@ module.exports = {
             helpEmbed.setTimestamp();
     
             try {
-                await message.channel.send({ embeds: [helpEmbed] });
+                await message.reply({ embeds: [helpEmbed] });
+               
             } catch (error) {
                 console.error(error);
             }
