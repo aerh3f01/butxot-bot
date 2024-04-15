@@ -76,7 +76,7 @@ module.exports = {
         const embedColour = timeoutLength === null ? 0x00FF00 : 0xFF0000;
 
        
-        console.log(durationName, timeoutLength, reason, embedColour)
+        
         const logEmbed = new EmbedBuilder()
             .setTitle('User Timed Out')
             .setDescription(`**${user.tag}** has been timed out by **${interaction.user.tag}**.`)
