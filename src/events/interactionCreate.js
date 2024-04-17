@@ -10,10 +10,6 @@ const customEmitter = require('../util/customEmitter');
 module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
-        // Handle custom command interactions for closeReport
-        if (interaction.isCommand() && interaction.commandName === 'close-report') {
-            await customEmitter.emit('closeReport', interaction);
-        }
         // Handling Chat Input Commands
         if (interaction.isChatInputCommand()) {
             const command = interaction.client.commands.get(interaction.commandName);

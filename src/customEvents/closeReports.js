@@ -20,11 +20,11 @@ customEmitter.on('closeReport', async (interaction, reportNum) => {
         const query = 'SELECT * FROM reports WHERE report_id = $1';
         const values = [reportId];
         const res = await pool.query(query, values);
-        const incomingMessageId = res.rows[0].incoming_message_id;
-        const reportsChannelMessageId = res.rows[0].reports_channel_message_id;
-        const priority = res.rows[0].priority;
+        const incomingMessageId = await res.rows[0].incoming_message_id;
+        const reportsChannelMessageId = await res.rows[0].reports_channel_message_id;
+        const priority = await res.rows[0].priority;
         // report creator
-        const reportCreator = await interaction.guild.members.fetch(userRes.rows[0].user_id);
+        const reportCreator = await interaction.guild.members.fetch(res.rows[0].user_id);
 
         // Fetch the message from the incoming reports channel
         const incomingChannel = await interaction.guild.channels.fetch(incomingReportsChannel);
@@ -55,12 +55,16 @@ customEmitter.on('closeReport', async (interaction, reportNum) => {
             });
 
         // Log the event
+        let priorityString = priority === 1 ? 'Low' : priority === 2 ? 'Medium' : 'High';
+        let userName = interaction.user.tag;
         let logsChannel = await interaction.guild.channels.fetch(logChannel);
         const logEmbed = new EmbedBuilder()
             .setTitle('Report Closed')
             .setDescription(`Report ${reportId} from ${reportCreator} has been closed.`)
-            .addField('Priority', priority)
-            .addField('Closed by', interaction.user)
+            .addFields(
+                { name: 'Priority:', value: priorityString, inline: true },
+                { name: 'Closed by:', value: userName.toString(), inline: true }
+            )
             .setColor(0x00AA00)
             .setTimestamp();
         await logsChannel.send({ embeds: [logEmbed] });
