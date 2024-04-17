@@ -3,7 +3,7 @@ const { pool } = require('../util/db');
 const { WebhookClient } = require('discord.js');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require('@discordjs/builders');
 const { chalk, logs, errlogs } = require('../util/ez_log');
-const { priorityCategory, mediumCategory, generalCategory } = require('../util/reportCat');
+const { priorityCategory, mediumCategory, generalCategory, logChannel } = require('../util/reportCat');
 const customEmitter = require('../util/customEmitter');
 
 
@@ -59,6 +59,36 @@ module.exports = {
                     errlogs(chalk.red('Failed to send the message at:'), new Date().toISOString().slice(11, 19));
                     errlogs(chalk.red(err));
                     await interaction.update({ content: 'Failed to send the message.', components: [] });
+                }
+            }
+            if (interaction.customId === 'select-user') {
+                const userId = interaction.values[0];
+                const bans = await interaction.guild.bans.fetch();
+                const logsChannel = await interaction.guild.channels.fetch(logChannel);
+                try {
+                    const user = bans.find(ban => ban.user.id === userId);
+                    const userName = user.user.tag;
+                    if (!user) {
+                        return interaction.update({ content: 'User not found.', components: [] });
+                    }
+
+                    const logEmbed = new EmbedBuilder()
+                        .setTitle('User Unbanned')
+                        .setDescription(`**${userName}** has been unbanned.`)
+                        .addFields(
+                            { name: 'Moderator:', value: interaction.user.tag, inline: true }
+                        )
+                        .setColor(0x00ff00)
+                        .setTimestamp();
+
+                    await interaction.guild.bans.remove(userId);
+                    await logsChannel.send({ embeds: [logEmbed] });
+                    await interaction.update({ content: 'User unbanned!', components: [] });
+                    logs(chalk.green(`User ${userName} has been unbanned by ${interaction.user.tag} at:`), new Date().toISOString().slice(11, 19));
+                } catch (err) {
+                    errlogs(chalk.red('Failed to unban the user at:'), new Date().toISOString().slice(11, 19));
+                    errlogs(chalk.red(err));
+                    await interaction.update({ content: 'Failed to unban the user.', components: [] });
                 }
             }
         }

@@ -32,8 +32,10 @@ module.exports = {
         }
 
         const user = interaction.options.getUser('user');
-        const reason = interaction.options.getString('reason') || 'No reason provided';
+        const logsChannel = await interaction.guild.channels.fetch(logChannel);
+        const reason = await interaction.options.getString('reason') || `${interaction.user.tag} provided no reason.`;
 
+        memberToKick = interaction.guild.members.cache.get(user.id);
 
         const logEmbed = new EmbedBuilder()
             .setTitle('User Kicked')
@@ -42,13 +44,13 @@ module.exports = {
                 { name: 'Moderator:', value: interaction.user.tag, inline: true },
                 { name: 'Reason', value: reason, inline: true }
             )
-            .setColor('0xff0000')
+            .setColor(0xff0000)
             .setTimestamp();
 
         try {
-            await user.kick(reason);
+            await memberToKick.kick({ reason: reason });
 
-            logChannel.send({ embeds: [logEmbed] })
+            logsChannel.send({ embeds: [logEmbed] })
             return interaction.reply({ content: `Successfully kicked ${user.tag}.`, ephemeral: true });
         } catch (err) {
             errlogs(chalk.red("Failed to kick user " + user.tag));

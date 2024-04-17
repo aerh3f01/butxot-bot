@@ -31,13 +31,18 @@ module.exports = {
             return interaction.reply({ content: 'Sorry, you do not have the required permissions to use this command.', ephemeral: true });
         }
 
+        const logsChannel = await interaction.guild.channels.fetch(logChannel);
+
         const user = await interaction.options.getUser('user');
-        const reason = await interaction.options.getString('reason') || 'No reason provided';
+        const reason = await interaction.options.getString('reason') || `${interaction.user.tag} provided no reason.`;
 
         const memberToBan = interaction.guild.members.cache.get(user.id);
-        const banPermissions = new PermissionsBitField(memberToBan.permissions.bitfield);
 
-        if (banPermissions.has('ADMINISTRATOR')) {
+        if (!memberToBan) {
+            return interaction.reply({ content: 'User not found in this guild.', ephemeral: true });
+        }
+        // Checking if the member has the Administrator permission
+        if (memberToBan.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return interaction.reply({ content: 'Sorry, you cannot ban an administrator.', ephemeral: true });
         }
 
@@ -52,8 +57,8 @@ module.exports = {
             .setTimestamp();
 
         try {
-            await memberToBan.ban({ reason: reason }); 
-            logChannel.send({ embeds: [logEmbed] })
+            await memberToBan.ban({ reason: reason });
+            logsChannel.send({ embeds: [logEmbed] })
             return interaction.reply({ content: `Successfully banned ${user.tag}.`, ephemeral: true });
         }
         catch (err) {
